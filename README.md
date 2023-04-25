@@ -6,3 +6,6 @@ don't choose app and src directory as this project uses nextjs 12
 >npm install @heroicons/react
 import { HomeIcon } from "@heroicons/react/24/solid";
 import { HomeIcon } from "@heroicons/react/24/outline";
+
+## Styling from elemnts
+ > npm install -D @tailwindcss/forms

@@ -6,6 +6,8 @@ import { BellIcon, BookmarkIcon, ClipboardIcon, EllipsisHorizontalCircleIcon, El
 export default function Sidebar() {
   return (
     // fixed makes sidebar menu positioned at top using scrolling of feed 
+    //feed component will go outside of original flexbox because of this position
+    //fixed used in sidebar
     <div className="hidden sm:flex flex-col p-2 xl:items-start fixed h-full">
         {/* Twitter Logo  */}
         <div className="hoverEffect p-0 hover:bg-blue-100 xl:px-1">
