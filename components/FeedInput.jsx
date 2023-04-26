@@ -1,12 +1,19 @@
 import { FaceSmileIcon, PhotoIcon } from '@heroicons/react/24/outline'
-import Image from 'next/image'
+import Image from 'next/image';
+import {useSession, signOut} from 'next-auth/react';
 
 export default function FeedInput() {
-  return (
-    <div className='flex border-b border-gray-200 p-3 space-x-3'>
+
+
+    const {data:session} = useSession();
+    // console.log('session', session)
+  return <>
+      {session && (
+        <div className='flex border-b border-gray-200 p-3 space-x-3'>
         <Image 
+        onClick={signOut}
         className='h-11 w-11 rounded-full cursor-pointer hover:brightness-95'
-        src='/marty-avatar.png' 
+        src={session?.user.image} 
         alt='user-image'
         width={100}
         height={100}></Image>
@@ -23,5 +30,9 @@ export default function FeedInput() {
             </div>
         </div>
     </div>
-  )
+    )}
+  </>
+
+
+  
 }

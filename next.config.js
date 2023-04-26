@@ -17,7 +17,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'cdn.vox-cdn.com',
+        hostname: 'lh3.googleusercontent.com',
         port: '',
         pathname: '*/**',
       },
