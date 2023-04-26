@@ -4,7 +4,7 @@ import Widgets from "@/components/Widgets";
 import Head from "next/head";
 
 
-export default function Home({newsResults}) {
+export default function Home({articles, randomUsers}) {
   return (
     <>
    <Head>
@@ -21,7 +21,7 @@ export default function Home({newsResults}) {
     <Feed/>
 
    {/* Widgets  */}
-    <Widgets newsResults={newsResults.articles}/>
+    <Widgets articles={articles} randomUsers={randomUsers}/>
 
 
    {/* Modal  */}
@@ -36,14 +36,34 @@ export default function Home({newsResults}) {
 
 export async function  getServerSideProps(){
   const URL = `https://saurav.tech/NewsAPI/top-headlines/category/business/us.json`;
-  const newsResults = await fetch(URL)
-  .then(
-    res => res.json() 
-  )
+  
+  let newsResults; 
+  try {
+    newsResults = await fetch(URL)
+    .then(
+      res => res.json() 
+    )
+} catch (error) {
+  console.log(error);
+}
+//Who to follow section
+
+const URL_RANDOM_USERS = `https://randomuser.me/api/?results=50&inc=name,login,picture`;
+let randomUserResults;
+try {
+  randomUserResults = await fetch(URL_RANDOM_USERS)
+  .then( res => res.json())
+  
+} catch (error) {
+  console.log(error);
+}
+ 
+
 
   return {
     props:{
-      newsResults
+      articles : newsResults ? newsResults.articles : [],
+      randomUsers: randomUserResults? randomUserResults.results : []
     }
   }
 
