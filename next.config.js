@@ -11,7 +11,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'a57.foxnews.com',
+        hostname: 'firebasestorage.googleapis.com',
         port: '',
         pathname: '*/**',
       },
