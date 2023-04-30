@@ -14,3 +14,11 @@ import { HomeIcon } from "@heroicons/react/24/outline";
  ## framer motion for adding animations in react 
 
  > npm install framer-motion
+
+ ## recoil for state management
+ it is like redux but lightweight
+
+ > npm install recoil
+
+ ## modal
+ >npm install --save react-modal
