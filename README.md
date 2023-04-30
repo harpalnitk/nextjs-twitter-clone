@@ -9,3 +9,8 @@ import { HomeIcon } from "@heroicons/react/24/outline";
 
 ## Styling from elemnts
  > npm install -D @tailwindcss/forms
+
+
+ ## framer motion for adding animations in react 
+
+ > npm install framer-motion

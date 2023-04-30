@@ -1,3 +1,4 @@
+import { db, storage } from '@/firebase';
 import {
   ChartBarIcon,
   ChatBubbleLeftEllipsisIcon,
@@ -6,10 +7,58 @@ import {
   ShareIcon,
   TrashIcon,
 } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
+import { collection, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import Image from 'next/image';
 import Moment from 'react-moment';
+import  {useSession,signIn} from 'next-auth/react'; 
+import { useEffect, useState } from 'react';
+import { deleteObject, ref } from 'firebase/storage';
 
 export default function Post({ post }) {
+
+  const {data:session} = useSession();
+  const [likes,setLikes] = useState([]);
+  const [hasLiked,setHasLiked] = useState(false);
+
+const likePost = async ()=>{
+  if(session){
+    if(hasLiked){
+      await deleteDoc(doc(db,'twitter-posts', post.id,'likes', session?.user.uid));
+}else{
+//setDoc updates the doc
+await setDoc(doc(db,'twitter-posts', post.id,'likes',session?.user.uid),{
+ username: session.user.username
+});
+}
+  }else{
+    signIn();
+  }
+
+
+}
+
+const deletePost = async ()=>{
+  if(window.confirm('Are you sure you want to delete this post?')){
+    await deleteDoc(doc(db,'twitter-posts', post.id));
+    await deleteObject(ref(storage,`twitter-posts/${post.id}/image`));
+  }
+
+}
+
+useEffect(()=>{
+ const unsubscribe  = onSnapshot(
+  collection(db,'twitter-posts',post.id,'likes'),
+  (snapshot)=>setLikes(snapshot.docs)
+ )
+ return unsubscribe;
+},[]);
+
+useEffect(()=>{
+setHasLiked(likes.findIndex(like => like.id === session?.user.uid) !== -1)
+},[likes]);
+
+
   return (
     <div className='flex p-3 cursor-pointer border-b border-gray-200'>
       {/* user Image- Left Side  */}
@@ -55,8 +104,22 @@ export default function Post({ post }) {
         {/* post buttons  */}
         <div className='flex justify-between text-gray-500 p-2'>
           <ChatBubbleLeftEllipsisIcon className='h-9 w-9 hoverEffect p-2 hover:text-sky-500 hover:bg-sky-100' />
-          <TrashIcon className='h-9 w-9 hoverEffect p-2 hover:text-red-600 hover:bg-red-100' />
-          <HeartIcon className='h-9 w-9 hoverEffect p-2 hover:text-red-600 hover:bg-red-100' />
+          {session?.user.uid === post.data().id && (
+          <TrashIcon onClick={deletePost} className='h-9 w-9 hoverEffect p-2 hover:text-red-600 hover:bg-red-100' />
+          )}
+          <div className='flex items-center'>
+          {hasLiked ? (
+          <HeartIconSolid onClick={likePost} className='h-9 w-9 hoverEffect p-2 text-red-600 hover:bg-red-100' />
+          ):(
+            <HeartIcon onClick={likePost} className='h-9 w-9 hoverEffect p-2 hover:text-red-600 hover:bg-red-100' />
+          )}
+          {
+            likes.length > 0 && (
+              <span className={`${hasLiked && "text-red-600"} text-sm select-none`}>{likes.length}</span>
+            )
+          }
+          </div>
+
           <ShareIcon className='h-9 w-9 hoverEffect p-2 hover:text-sky-500 hover:bg-sky-100' />
           <ChartBarIcon className='h-9 w-9 hoverEffect p-2 hover:text-sky-500 hover:bg-sky-100' />
         </div>
