@@ -10,6 +10,7 @@ import { doc, onSnapshot, query, collection, orderBy } from "firebase/firestore"
 import { useEffect, useState } from "react";
 import Post from "@/components/Post";
 import Comment from "@/components/Comment";
+import { AnimatePresence, motion } from 'framer-motion';
 
 
 export default function PostPage({articles, randomUsers}) {
@@ -59,15 +60,20 @@ export default function PostPage({articles, randomUsers}) {
 
      {comments.length > 0 && (
         <div className="">
-    {comments.map(comment => (
+             <AnimatePresence>
+             {comments.map(comment => (
+    <motion.div key={comment.id} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} transition={{duration:1}}>
       <Comment 
       key={comment.id} 
       commentId={comment.id}
       originalPostId={id} 
       comment={comment.data()
       }/>
+      </motion.div>
      )
      )}
+             </AnimatePresence>
+
         </div>
      )}
 

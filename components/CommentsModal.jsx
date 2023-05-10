@@ -30,7 +30,7 @@ export default function CommentsModal() {
       //instead of snapshot.docs
       (snapshot) => setPost(snapshot)
     );
-  }, [postId, db]);
+  }, [postId]);
 
 const sendComment = async ()=>{
 await addDoc(collection(db,'twitter-posts',postId,'comments'),{

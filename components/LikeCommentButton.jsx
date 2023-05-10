@@ -35,11 +35,11 @@ export default function LikeCommentButton({commentId,postId}) {
          (snapshot)=>setLikes(snapshot.docs)
         )
         return unsubscribe;
-       },[commentId,postId,db]);
+       },[commentId,postId]);
 
        useEffect(()=>{
         setHasLiked(likes.findIndex(like => like.id === session?.user.uid) !== -1)
-        },[likes]);
+        },[likes,session?.user.uid]);
 
 
   return (

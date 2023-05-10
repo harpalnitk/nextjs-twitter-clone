@@ -13,7 +13,7 @@ export default function SignIn({providers}) {
         className="hidden md:inline-flex object-cover md:w-44 md:h-80 rotate-6"/>
         <div className=''>
             {Object.values(providers).map(provider => (
-                <div className='flex flex-col items-center'>
+                <div key={provider.name} className='flex flex-col items-center'>
                     <Image
                     src='/twitter-logo-large.png'
                     alt='twitter logo'

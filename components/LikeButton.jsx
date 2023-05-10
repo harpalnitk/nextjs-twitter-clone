@@ -41,7 +41,7 @@ export default function LikeButton({id}) {
 
        useEffect(()=>{
         setHasLiked(likes.findIndex(like => like.id === session?.user.uid) !== -1)
-        },[likes]);
+        },[likes,session?.user.uid]);
 
 
   return (
