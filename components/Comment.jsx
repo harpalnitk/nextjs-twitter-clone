@@ -5,24 +5,21 @@ import {
   } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import Moment from 'react-moment';
-import CommentButton from './CommentButton';
-import LikeButton from './LikeButton';
-import DeleteButton from './DeleteButton';
-import { useRouter } from 'next/router';
+import LikeCommentButton from './LikeCommentButton';
+import DeleteCommentButton from './DeleteCommentButton';
 
 
-export default function Post({ id, post }) {
-  const router = useRouter();
+export default function Comment({ commentId, originalPostId, comment }) {
 
   return (
-    <div className='flex p-3 cursor-pointer border-b border-gray-200'>
+    <div className='flex p-3 cursor-pointer border-b border-gray-200 pl-20'>
       {/* user Image- Left Side  */}
       <Image
         className='h-11 w-11 rounded-full mr-4'
-        src={post?.data()?.userImg}
+        src={comment?.userImg}
         width={100}
         height={100}
-        alt='post-user-image'
+        alt='comment-user-image'
       />
 
       {/* Right Side  */}
@@ -35,10 +32,10 @@ to fix this adding flex-1 to below div */}
         <div className='flex items-center justify-between'>
           {/* post user Info  */}
           <div className='flex items-center space-x-1 whitespace-nowrap'>
-            <h4 className='font-bold text-[15px] sm:text-[16px] hover:underline'>{post?.data()?.name}</h4>
-            <span className='text-sm sm:text-[15px]'>@{post?.data()?.username} - </span>
+            <h4 className='font-bold text-[15px] sm:text-[16px] hover:underline'>{comment?.name}</h4>
+            <span className='text-sm sm:text-[15px]'>@{comment?.username} - </span>
             <span className='text-sm sm:text-[15px] hover:underline'>
-              <Moment fromNow>{post?.data()?.timestamp?.toDate()}</Moment>
+              <Moment fromNow>{comment?.timestamp?.toDate()}</Moment>
               </span>
           </div>
 
@@ -48,28 +45,18 @@ to fix this adding flex-1 to below div */}
         </div>
 
         {/* post text  */}
-        <p onClick={()=> router.push(`/posts/${id}`)} className='text-gray-800 text-[15px] sm:text-[16px] mb-2'>{post?.data()?.text}</p>
+        <p className='text-gray-800 text-[15px] sm:text-[16px] mb-2'>{comment?.comment}</p>
 
-        {/* post image  */}
-        {
-          post?.data()?.image && 
-          <Image 
-           onClick={()=> router.push(`/posts/${id}`)}
-           className='rounded-2xl mr-2'
-           src={post?.data()?.image}
-           width={500} 
-           height={500} 
-           alt='post-image' />
-        }
+
 
 
         {/* post buttons  */}
         <div className='flex justify-between text-gray-500 p-2'>
 
-           <CommentButton id={id}/>
+         
 
-           <DeleteButton id={id} postCreatorUserId={post?.data()?.id} postImage={post?.data()?.image}/>
-           <LikeButton id={id}/>
+           <DeleteCommentButton postId={originalPostId} commentId={commentId} commentCreatorUserId={comment?.userId}/>
+           <LikeCommentButton commentId={commentId} postId={originalPostId}/>
 
           <ShareIcon className='h-9 w-9 hoverEffect p-2 hover:text-sky-500 hover:bg-sky-100' />
           <ChartBarIcon className='h-9 w-9 hoverEffect p-2 hover:text-sky-500 hover:bg-sky-100' />

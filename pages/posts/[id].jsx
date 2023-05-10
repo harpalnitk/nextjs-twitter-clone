@@ -6,22 +6,32 @@ import Widgets from "@/components/Widgets";
 import Head from "next/head";
 import {useRouter} from 'next/router';
 import { db } from "@/firebase";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, query, collection, orderBy } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import Post from "@/components/Post";
+import Comment from "@/components/Comment";
 
 
 export default function PostPage({articles, randomUsers}) {
 
     const [post,setPost]= useState();
+    const [comments,setComments]= useState([]);
 
     const router = useRouter();
     const {id} = router.query;
 
+    //get post data
     useEffect(()=>{
         onSnapshot(doc(db,'twitter-posts',id),
         (snapshot)=> setPost(snapshot))
     },[db,id]);
+
+    //get post comments
+    useEffect(()=>{
+      onSnapshot(query(collection(db,'twitter-posts',id,'comments'),
+      orderBy('timestamp','desc')),
+      (snapshot)=> setComments(snapshot.docs))
+  },[db,id]);
 
 
   return (
@@ -46,6 +56,21 @@ export default function PostPage({articles, randomUsers}) {
   
 
      <Post id={id} post={post}/>
+
+     {comments.length > 0 && (
+        <div className="">
+    {comments.map(comment => (
+      <Comment 
+      key={comment.id} 
+      commentId={comment.id}
+      originalPostId={id} 
+      comment={comment.data()
+      }/>
+     )
+     )}
+        </div>
+     )}
+
 
 
     </div>
