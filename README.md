@@ -22,3 +22,8 @@ import { HomeIcon } from "@heroicons/react/24/outline";
 
  ## modal
  >npm install --save react-modal
+
+ ## to set redirect URI
+
+ got to project console in google console
+ and from left top menu select api and services
