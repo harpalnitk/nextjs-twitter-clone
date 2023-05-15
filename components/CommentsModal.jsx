@@ -8,9 +8,10 @@ import { db } from '@/firebase';
 import { onSnapshot, doc, addDoc, serverTimestamp, collection } from 'firebase/firestore';
 import Image from 'next/image';
 import Moment from 'react-moment';
-import {useSession} from 'next-auth/react';
+// import {useSession} from 'next-auth/react';
 import { FaceSmileIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import {useRouter} from 'next/router';
+import { userState } from '@/atom/userAtom';
 
 
 export default function CommentsModal() {
@@ -19,9 +20,10 @@ export default function CommentsModal() {
   const [post, setPost] = useState({});
   const [input, setInput] = useState('');
 
-  const {data:session} = useSession();
+  // const {data:session} = useSession();
 
   const router = useRouter();
+  const [currentUser,setCurrentUser] = useRecoilState(userState);
 
   useEffect(() => {
     onSnapshot(
@@ -35,11 +37,11 @@ export default function CommentsModal() {
 const sendComment = async ()=>{
 await addDoc(collection(db,'twitter-posts',postId,'comments'),{
   comment:input,
-  name:session.user.name,
-  username:session.user.username,
-  userImg:session.user.image,
+  name:currentUser.name,
+  username:currentUser.username,
+  userImg:currentUser.userImg,
   timestamp:serverTimestamp(),
-  userId:session.user.uid,
+  userId:currentUser.uid,
 })
 setOpen(false);
 setInput('');
@@ -97,7 +99,7 @@ router.push(`/posts/${postId}`);
         <Image 
       
         className='h-11 w-11 rounded-full cursor-pointer hover:brightness-95'
-        src={session?.user.image} 
+        src={currentUser.userImg} 
         alt='user-image'
         width={100}
         height={100}></Image>

@@ -11,13 +11,54 @@ import {
   InboxIcon,
   UserIcon,
 } from '@heroicons/react/24/outline';
-import { getAuth } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import { useEffect } from 'react';
+import { db } from '@/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { useRecoilState } from 'recoil';
+import { userState } from '@/atom/userAtom';
+import { useRouter } from 'next/router';
 // import { useSession,signIn,signOut } from "next-auth/react";
-const auth = getAuth();
+
 
 
 export default function Sidebar() {
   // const {data:session} = useSession();
+
+  const [currentUser,setCurrentUser] = useRecoilState(userState);
+
+  const auth = getAuth();
+
+  const router = useRouter();
+
+  
+
+  
+
+  useEffect(()=>{
+
+    onAuthStateChanged(auth, (user)=>{
+      if(user){
+        const uid = auth.currentUser?.providerData[0].uid;
+        const fetchUser = async () => {
+        const docRef = doc(db,'twitter-users',uid);
+        const docSnap = await getDoc(docRef);
+        if(docSnap.exists()){
+            setCurrentUser(docSnap.data())
+        }
+      };
+      fetchUser();
+    }
+    })
+
+  },[]);
+
+  const onSignOut = async () => {
+    await signOut(auth);
+    setCurrentUser(null);
+  };
+
+
   return (
     // fixed makes sidebar menu positioned at top using scrolling of feed
     //feed component will go outside of original flexbox because of this position
@@ -37,7 +78,7 @@ export default function Sidebar() {
       <div className='mt-4 mb-2.5 xl:items-start'>
         <SidebarMenuItem text='Home' Icon={HomeIcon} active></SidebarMenuItem>
         <SidebarMenuItem text='Explore' Icon={HashtagIcon}></SidebarMenuItem>
-        {session && (
+        {currentUser && (
           <>
             <SidebarMenuItem
               text='Notifications'
@@ -61,7 +102,7 @@ export default function Sidebar() {
         )}
       </div>
 
-      {session ? (
+      {currentUser ? (
         <>
           {/* Tweet Button  */}
           <button className='bg-blue-400 text-white rounded-full w-56 h-12 font-bold shadow-md hover:brightness-95 text-lg hidden xl:inline'>
@@ -71,23 +112,23 @@ export default function Sidebar() {
           {/* MiniProfile  */}
           <div className='hoverEffect text-gray-700 flex items-center justify-center xl:justify-start mt-auto'>
             <Image
-              src={session.user.image}
+              src={currentUser?.userImg}
               width='100'
               height='100'
               alt='user-image'
               className='h-10 w-10 rounded-full xl:mr-2'
-              onClick={signOut}
+              onClick={onSignOut}
             />
             <div className='leading-5 hidden xl:inline'>
-              <h4 className='font-bold'>{session.user.name}</h4>
-              <p className='text-gray-500'>@{session.user.username}</p>
+              <h4 className='font-bold'>{currentUser?.name}</h4>
+              <p className='text-gray-500'>@{currentUser?.username}</p>
             </div>
             <EllipsisHorizontalIcon className='h-5 xl:ml-8 hidden xl:inline' />
           </div>
         </>
       ) : (
         <button
-          onClick={signIn}
+          onClick={()=> router.push('/auth/signin')}
           className='bg-blue-400 text-white rounded-full w-36 h-12 font-bold shadow-md hover:brightness-95 text-lg hidden xl:inline'
         >
           {' '}

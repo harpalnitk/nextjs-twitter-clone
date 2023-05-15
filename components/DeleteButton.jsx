@@ -4,14 +4,16 @@ import {
   import {deleteDoc, doc  } from 'firebase/firestore';
   import { db, storage } from '@/firebase';
   import { deleteObject, ref } from 'firebase/storage';
-  import  {useSession,} from 'next-auth/react'; 
+  // import  {useSession,} from 'next-auth/react'; 
 import { useRouter } from 'next/router';
+import { useRecoilState } from 'recoil';
+import { userState } from '@/atom/userAtom';
 
 export default function DeleteButton({id,postCreatorUserId,postImage}) {
 
-    const {data:session} = useSession();
+    //const {data:session} = useSession();
     const router = useRouter();
-
+    const [currentUser,setCurrentUser] = useRecoilState(userState);
     const deletePost = async ()=>{
         if(window.confirm('Are you sure you want to delete this post?')){
       
@@ -30,7 +32,7 @@ export default function DeleteButton({id,postCreatorUserId,postImage}) {
 
   return (
     <>
-    {session?.user.uid === postCreatorUserId && (
+    {currentUser?.uid === postCreatorUserId && (
           <TrashIcon onClick={deletePost} className='h-9 w-9 hoverEffect p-2 hover:text-red-600 hover:bg-red-100' />
     )}
     </>

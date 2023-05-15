@@ -4,15 +4,19 @@ import {
 import { useEffect, useState } from 'react';
 import { modalState, postIdState } from '@/atom/modalAtom';
 import { useRecoilState } from 'recoil';
-import  {useSession,signIn} from 'next-auth/react'; 
+// import  {useSession,signIn} from 'next-auth/react'; 
 import { collection,onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebase';
+import { userState } from '@/atom/userAtom';
+import { useRouter } from 'next/router';
 
 export default function CommentButton({id}) {
     const [comments,setComments] = useState([]);
     const [open, setOpen] = useRecoilState(modalState);
     const [postId, setPostId] = useRecoilState(postIdState);
-    const {data:session} = useSession();
+   // const {data:session} = useSession();
+   const [currentUser,setCurrentUser] = useRecoilState(userState);
+   const router = useRouter();
    
     useEffect(()=>{
         const unsubscribe  = onSnapshot(
@@ -27,8 +31,9 @@ export default function CommentButton({id}) {
     <div className='flex items-center select-none'>
     <ChatBubbleLeftEllipsisIcon  
     onClick={()=>{
-      if(!session){
-        signIn();
+      if(!currentUser){
+        //signIn();
+        router.push('/auth/signin');
       }else{
         setPostId(id);
         setOpen(!open);

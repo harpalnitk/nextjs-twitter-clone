@@ -1,16 +1,20 @@
 import { FaceSmileIcon, PhotoIcon } from '@heroicons/react/24/outline'
 import Image from 'next/image';
-import {useSession, signOut} from 'next-auth/react';
+// import {useSession, signOut} from 'next-auth/react';
 import { useRef, useState } from 'react';
 import { db, storage } from '@/firebase';
 import {addDoc,collection, doc, serverTimestamp, updateDoc} from 'firebase/firestore';
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import { XMarkIcon } from '@heroicons/react/24/solid';
+import { useRecoilState } from 'recoil';
+import { userState } from '@/atom/userAtom';
+import { getAuth, signOut } from 'firebase/auth';
 
 export default function FeedInput() {
 
 
-    const {data:session} = useSession();
+    const [currentUser,setCurrentUser] = useRecoilState(userState);
+   // const {data:session} = useSession();
     // console.log('session', session)
 
     const [input, setInput] = useState('');
@@ -19,16 +23,18 @@ export default function FeedInput() {
     
     const filePickerRef = useRef(null);
 
+    const auth = getAuth();
+
     const addImageToTweet =  (e) => {
-        console.log('addImageToTweet ', selectedImage);
+       // console.log('addImageToTweet ', selectedImage);
         const reader = new FileReader();
         if(e.target.files[0]){
             reader.readAsDataURL(e.target.files[0])
         }
         reader.onload = (readerEvent) => {
-            console.log('reader.onload ', selectedImage);
+           // console.log('reader.onload ', selectedImage);
             setSelectedImage(readerEvent.target.result)
-            console.log('selectedImage ', selectedImage);
+            //console.log('selectedImage ', selectedImage);
         }
 
     }
@@ -37,25 +43,25 @@ export default function FeedInput() {
         if(loading) return;
         setLoading(true);
         
-        console.log('selectedImage inside send tweet ', selectedImage);
+        //console.log('selectedImage inside send tweet ', selectedImage);
         const docRef = await addDoc(collection(db,'twitter-posts'),{
-            id: session.user.uid,
+            id: currentUser.uid,
             text:input,
-            userImg:session.user.image,
+            userImg:currentUser.userImg,
             timestamp:serverTimestamp(),
-            name:session.user.name,
-            username:session.user.username
+            name:currentUser.name,
+            username:currentUser.username
         })
 
         //docRef.id is id of document created
         const imageRef = ref(storage,`twitter-posts/${docRef.id}/image`);
-        console.log('selectedImage ', selectedImage);
+       // console.log('selectedImage ', selectedImage);
         if(selectedImage){
-            console.log('selectedImage ', selectedImage)
+            //console.log('selectedImage ', selectedImage)
             await uploadString(imageRef, selectedImage,'data_url').then(
                 async () => {
                     const downloadURL = await getDownloadURL(imageRef);
-                    console.log('downloadURL ', downloadURL)
+                   // console.log('downloadURL ', downloadURL)
                     //update tweet doc now
                     await updateDoc(doc(db,'twitter-posts',docRef.id),{
                         image: downloadURL
@@ -68,13 +74,18 @@ export default function FeedInput() {
         setLoading(false);
     }
 
+    const onSignOut = async () => {
+        await signOut(auth);
+        setCurrentUser(null);
+      };
+
   return <>
-      {session && (
+      {currentUser && (
         <div className='flex border-b border-gray-200 p-3 space-x-3'>
         <Image 
-        onClick={signOut}
+        onClick={onSignOut}
         className='h-11 w-11 rounded-full cursor-pointer hover:brightness-95'
-        src={session?.user.image} 
+        src={currentUser?.userImg} 
         alt='user-image'
         width={100}
         height={100}></Image>

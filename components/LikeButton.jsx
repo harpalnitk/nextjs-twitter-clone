@@ -3,29 +3,35 @@ import {
   } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
-import  {useSession,signIn} from 'next-auth/react'; 
+// import  {useSession,signIn} from 'next-auth/react'; 
 import { collection, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '@/firebase';
+import { useRecoilState } from 'recoil';
+import { userState } from '@/atom/userAtom';
+import { useRouter } from 'next/router';
 
 
 export default function LikeButton({id}) {
 
-    const {data:session} = useSession();
+    //const {data:session} = useSession();
     const [likes,setLikes] = useState([]);
     const [hasLiked,setHasLiked] = useState(false);
+    const [currentUser,setCurrentUser] = useRecoilState(userState);
+    const router = useRouter();
 
     const likePost = async ()=>{
-        if(session){
+        if(currentUser){
           if(hasLiked){
-            await deleteDoc(doc(db,'twitter-posts', id,'likes', session?.user.uid));
+            await deleteDoc(doc(db,'twitter-posts', id,'likes', currentUser?.uid));
       }else{
       //setDoc updates the doc
-      await setDoc(doc(db,'twitter-posts', id,'likes',session?.user.uid),{
-       username: session.user.username
+      await setDoc(doc(db,'twitter-posts', id,'likes',currentUser?.uid),{
+       username: currentUser?.username
       });
       }
         }else{
-          signIn();
+          //signIn();
+          router.push('/auth/signin');
         }
       
       
@@ -40,8 +46,8 @@ export default function LikeButton({id}) {
        },[id]);
 
        useEffect(()=>{
-        setHasLiked(likes.findIndex(like => like.id === session?.user.uid) !== -1)
-        },[likes,session?.user.uid]);
+        setHasLiked(likes.findIndex(like => like.id === currentUser?.uid) !== -1)
+        },[likes,currentUser]);
 
 
   return (
